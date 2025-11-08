@@ -52,3 +52,13 @@ export async function updateUser(userId: string, userData: UpdateUserData, prism
         }
     );
 }
+
+export async function deleteUser(userId: string, prisma: PrismaClient) {
+    return prisma.users.delete(
+        {
+            where: {
+                id: userId
+            }
+        }
+    );
+}
