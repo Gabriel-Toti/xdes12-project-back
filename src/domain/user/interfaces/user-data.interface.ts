@@ -15,6 +15,5 @@ export interface UpdateUserData {
     gender: Gender;
     phone: string;
     active: boolean;
-    premium: boolean;
 }
 

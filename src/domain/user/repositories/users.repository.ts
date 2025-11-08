@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { CreateUserData } from "../interfaces/user-data.interface";
+import { CreateUserData, UpdateUserData } from "../interfaces/user-data.interface";
 
 
 
@@ -34,6 +34,20 @@ export async function updateLastLogin(email: string, now: string, prisma: Prisma
             },
             data: {
                 last_login: now
+            }
+        }
+    );
+}
+
+export async function updateUser(userId: string, userData: UpdateUserData, prisma: PrismaClient) {
+    return prisma.users.update(
+        {
+            where: {
+                id: userId
+            },
+            data:
+            {
+                ...userData
             }
         }
     );
