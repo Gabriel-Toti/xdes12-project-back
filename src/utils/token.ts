@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken'
-export function getToken(user: { userId: string, userRole: number })
+export function getToken(user: { userId: string })
 {
     return jwt.sign(
-                { userId: user.userId, userRole: user.userRole },
+                { userId: user.userId },
                 process.env.JWT_SECRET as string
             );
 }
