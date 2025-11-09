@@ -19,6 +19,6 @@ export const logger = pino(
                     stack: error.stack
                 };
             }
-        }
+        },
     }
 );
