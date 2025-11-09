@@ -4,6 +4,7 @@ import { handleError } from "../../../utils/error-handler";
 import { createUserService } from "../services/create-user.service";
 import { loginService } from "../services/login.service";
 import { UpdateUserService } from "../services/update-user.service";
+import { deleteUserService } from "../services/delete-user.service";
 
 export function createUser(prisma: PrismaClient)
 {
@@ -41,12 +42,28 @@ export function updateUser(prisma: PrismaClient) {
     return async function (req: Request, res: Response) {
         try {
             const userData = req.body;
-            const { userId } = req.params;
+            const { userId } = req.headers;
 
-            await UpdateUserService(userId!, userData, prisma);
+            await UpdateUserService(userId as string, userData, prisma);
 
             res.status(204).send();
 
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    }
+}
+
+export function deleteUser(prisma: PrismaClient)
+{
+    return async function (req: Request, res: Response) {
+        try {
+            const { userId } = req.headers;
+
+            await deleteUserService(userId as string, prisma);
+
+            res.status(204).send();
         } catch (error: any) {
             const e = handleError(error);
             res.status(e.status).json(e.error);
