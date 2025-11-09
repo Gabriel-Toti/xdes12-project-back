@@ -1,5 +1,7 @@
 import { object, string } from "yup";
-import { Gender } from "../enum/gender.enum";
+import { PhoneSchema } from "./base/phone.validation";
+import { GenderSchema } from "./base/gender.validation";
+import { PasswordSchema } from "./base/password.validation";
 
 export const CreateUserSchema = object().shape(
     {
@@ -8,46 +10,16 @@ export const CreateUserSchema = object().shape(
         email: string()
         .email("Email deve ser um email válido")
         .required("Email é obrigatório"),
-        password: string()
-        .min(8, "A senha deve conter ao menos 8 caracteres")
-        .matches (
-            /^(?=.*[A-Z])/, 
-            'A senha deve conter pelo menos uma letra maiúscula.'
-            )
-            .matches(
-            /^(?=.*[a-z])/, 
-            'A senha deve conter pelo menos uma letra minúscula.'
-            )
-            .matches(
-            /^(?=.*\d)/, 
-            'A senha deve conter pelo menos um número.'
-            )
-            .matches(
-            /^(?=.*[!@#$%^&*()_+{}[\]:;<>,.?~\\/-])/, 
-            'A senha deve conter pelo menos um caractere especial.'
-            )
-            .required('A senha é um campo obrigatório.'),
-            phone: string()
-            .test('is-valid-number', "Número de telefone inválido", (phone) => phone? isValidPhoneNumber(phone) : false)
-            .required("O telefone é obrigatório."),
-            gender: string()
-            .oneOf(Object.values(Gender))
-            .required("Gênero é obrigatório"),
-            cpf: string()
-            .test("is-cpf_valid", "CPF inválido", (cpf) => cpf? isCPFValid(cpf) : false)
-            .required("CPF é Obrigatório.")
+        password: PasswordSchema
+        .required('A senha é um campo obrigatório.'),
+        phone: PhoneSchema.required("O telefone é obrigatório."),
+        gender: GenderSchema
+        .required("Gênero é obrigatório"),
+        cpf: string()
+        .test("is-cpf_valid", "CPF inválido", (cpf) => cpf? isCPFValid(cpf) : false)
+        .required("CPF é Obrigatório.")
     }
 );
-
-function isValidPhoneNumber(phone: string): boolean
-{
-    phone = phone.replace(/[^\d]/g, '')
-
-    if(!/^\d{11}$/g.test(phone))
-        return false
-
-    return true;
-}
 
 function isCPFValid(cpf: string): boolean
 {
