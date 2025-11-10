@@ -26,8 +26,6 @@ model attributes {
   id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.VarChar(36)
   name        String        @db.VarChar(64)
   value       String        @db.VarChar(64)
-  weight      Int           @db.SmallInt
-  quiet_hours quiet_hours[]
   rules       rule[]
   preferences preferences[]
 }
@@ -56,6 +54,7 @@ model participation {
 model preferences {
   id_attributes String      @id @db.VarChar(36)
   id_user       String      @db.VarChar(36)
+  weight        Int         @db.SmallInt
   users         users       @relation(fields: [id_user], references: [id], onDelete: Cascade, onUpdate: NoAction)
   attribute     attributes  @relation(fields: [id_attributes], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
@@ -76,14 +75,6 @@ model property {
   announcement    announcement[]
   rule            rule[]
   participation   participation[]
-}
-
-model quiet_hours {
-  time         String     @db.VarChar(16)
-  id_attribute String     @db.VarChar(36)
-  attributes   attributes @relation(fields: [id_attribute], references: [id], onDelete: Cascade, onUpdate: NoAction)
-
-  @@id([time, id_attribute])
 }
 
 model rule {
