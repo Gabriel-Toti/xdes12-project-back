@@ -4,12 +4,14 @@ import { PreferenceController } from "../controllers";
 import { PrismaClient } from "@prisma/client";
 import { inputValidateMiddleware } from "../../../middlewares/input-validation-middleware";
 import { CreatePreferenceSchema } from "../../../utils/validations/create-preference.validation";
+import { UpdatePreferenceSchema } from "../../../utils/validations/update-preference.validation";
 
 
 const router = Router();
 const prisma = new PrismaClient();
 
 router.post('/preference', authMiddleware(), inputValidateMiddleware(CreatePreferenceSchema), PreferenceController.createPreferences(prisma));
+router.put('/preference', authMiddleware(), inputValidateMiddleware(UpdatePreferenceSchema), PreferenceController.updatePreferences(prisma));
 router.get('/preference/model', PreferenceController.getPreferencesModel())
 
 export default router;

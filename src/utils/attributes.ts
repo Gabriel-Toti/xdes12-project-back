@@ -54,6 +54,10 @@ const ATTRIBUTE_CONFIG = {
 
 type AllowedAttributeName = keyof typeof ATTRIBUTE_CONFIG;
 
+export function isValidAttributeName(attributeName: string): boolean {
+    return attributeName in ATTRIBUTE_CONFIG;
+}
+
 export function isValidAttribute(attribute: AttributeData): boolean {
 
   if (!(attribute.name in ATTRIBUTE_CONFIG)) {
