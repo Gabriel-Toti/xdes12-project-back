@@ -26,6 +26,16 @@ export async function getUserByEmail(email: string, prisma: PrismaClient) {
     );
 }
 
+export async function getUserById(id: string, prisma: PrismaClient) {
+    return prisma.users.findUnique(
+        {
+            where: {
+                id
+            }
+        }
+    );
+}
+
 export async function updateLastLogin(email: string, now: string, prisma: PrismaClient) {
     return prisma.users.update(
         {
