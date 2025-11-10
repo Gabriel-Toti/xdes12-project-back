@@ -60,7 +60,7 @@ export function isValidAttributeName(attributeName: string): boolean {
 
 export function isValidAttribute(attribute: AttributeData): boolean {
 
-  if (!(attribute.name in ATTRIBUTE_CONFIG)) {
+  if (!isValidAttributeName(attribute.name)) {
     return false;
   }
 
