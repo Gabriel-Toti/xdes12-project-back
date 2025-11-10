@@ -1,6 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { AttributeData } from "../interfaces/attributes.interface";
 import { UpdatePreferenceData } from "../interfaces/preferences.interface";
+import { NotDefined } from "../../../utils/errors/not-defined";
 
 export async function createPreferences(userId: string, weight: number[], preferenceData: AttributeData[], prisma: PrismaClient) {
     return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -31,6 +32,13 @@ export async function createPreferences(userId: string, weight: number[], prefer
                     }
                 }
             );
+        }
+
+        const totalPreferences = await getUserPreferences(userId, prisma);
+
+        if(totalPreferences.length + preferenceData.length < 3)
+        {
+            throw new NotDefined("O usuário deve registrar ao menos 3 preferências.");
         }
     })
 }
@@ -101,4 +109,15 @@ export async function updatePreference(preferenceData: UpdatePreferenceData, pri
             }
         );
     });
+}
+
+export function getUserPreferences(userId: string, prisma: PrismaClient)
+{
+    return prisma.preferences.findMany(
+        {
+            where: {
+                id_user: userId
+            }
+        }
+    );
 }

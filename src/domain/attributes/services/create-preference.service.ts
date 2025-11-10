@@ -16,6 +16,8 @@ export async function createPreferencesService(userId: string, preferencePayload
             throw new NotDefined("Usuário inexistente");
         }
 
+        const seen = new Set();
+
         const names = preferencePayload.map((p) => p.name);
 
         const exists = await userPreferencesExists(userId, names, prisma)
@@ -28,10 +30,18 @@ export async function createPreferencesService(userId: string, preferencePayload
         const preferenceData: AttributeData[] = [];
         const weight: number[] = []
 
-        preferencePayload.map((p) => {
-            preferenceData.push({name: p.name, value: p.value});
-            weight.push(p.weight);
-        });
+        for(let i = 0; i < preferencePayload.length; i++)
+        {
+            let p = preferencePayload[i];
+
+            if(seen.has(p!.name)) throw new NotDefined("Preferências duplicadas");
+
+            seen.add(p!.name);
+
+            preferenceData.push({name: p!.name, value: p!.value});
+            weight.push(p!.weight);
+
+        }
 
         await createPreferences(userId, weight, preferenceData, prisma);
     } catch (error) {
