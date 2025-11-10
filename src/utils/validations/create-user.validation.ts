@@ -1,4 +1,4 @@
-import { object, string } from "yup";
+import { date, object, string } from "yup";
 import { PhoneSchema } from "./base/phone.validation";
 import { GenderSchema } from "./base/gender.validation";
 import { PasswordSchema } from "./base/password.validation";
@@ -13,6 +13,8 @@ export const CreateUserSchema = object().shape(
         password: PasswordSchema
         .required('A senha é um campo obrigatório.'),
         phone: PhoneSchema.required("O telefone é obrigatório."),
+        birthdate: date()
+        .required("Data de nascimento é obrigatória."),
         gender: GenderSchema
         .required("Gênero é obrigatório"),
         cpf: string()
