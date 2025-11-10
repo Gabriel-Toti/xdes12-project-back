@@ -3,14 +3,13 @@ import { handleError } from "../../../utils/error-handler";
 import { createPreferencesService } from "../services/create-preference.service";
 import { PrismaClient } from "@prisma/client";
 import { getAttributeConfig } from "../../../utils/attributes";
+import { updatePreferenceService } from "../services/update-preference.service";
 
 export function createPreferences(prisma: PrismaClient) {
     return async function (req: Request, res: Response) {
         try {
             const { userId } = req.headers;
             const { preferences } = req.body;
-
-            //TODO: Preciso fazer uma verificação manual de se ja existe a preferencia com esse nome
 
             await createPreferencesService(userId as string, preferences, prisma);
 
@@ -30,6 +29,24 @@ export function getPreferencesModel() {
             const model = getAttributeConfig();
 
             res.status(200).json(model);
+
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    }
+}
+
+export function updatePreferences(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { userId } = req.headers;
+
+            const { name, ...preferencePayload } = req.body;
+
+            await updatePreferenceService(userId as string, name, preferencePayload, prisma);
+
+            res.status(204).send();
 
         } catch (error: any) {
             const e = handleError(error);

@@ -1,11 +1,12 @@
 import { PrismaClient } from "@prisma/client";
-import { AttributeData, CreateAttributePayload } from "../interfaces/attributes.interface";
+import { AttributeData } from "../interfaces/attributes.interface";
 import { createPreferences, userPreferencesExists } from "../repositories/preference.repository";
 import { getUserById } from "../../user/repositories/users.repository";
 import { NotDefined } from "../../../utils/errors/not-defined";
+import { CreatePreferencePayload } from "../interfaces/preferences.interface";
 
 
-export async function createPreferencesService(userId: string, preferencePayload: CreateAttributePayload[], prisma: PrismaClient) {
+export async function createPreferencesService(userId: string, preferencePayload: CreatePreferencePayload[], prisma: PrismaClient) {
     try {
 
         const user = await getUserById(userId, prisma);
