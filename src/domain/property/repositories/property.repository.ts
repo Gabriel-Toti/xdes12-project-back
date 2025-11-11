@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { CreatePropertyData } from "../interfaces/property.interface";
+import { NotDefined } from "../../../utils/errors/not-defined";
 
 export async function createProperty(userId: string, propertyData: CreatePropertyData, prisma: PrismaClient) {
     return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
@@ -17,6 +18,19 @@ export async function createProperty(userId: string, propertyData: CreatePropert
             },
         });
 
+        const quantity = await tx.participation.findMany(
+            {
+                where: {
+                    id_user: userId,
+                    admin: true
+                },
+            }
+        );
+
+        if (quantity.length >= 5) {
+            throw new NotDefined("Um usuário não pode participar de mais de 5 imóveis.");
+        }
+            
         return [property, participation];
     });
 }
