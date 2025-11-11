@@ -16,3 +16,8 @@ export interface CreatePropertyData {
     external_area: boolean;
     members: Member[]
 }
+
+export interface UpdatePropertyData {
+    costs?: string;
+    total_vacancies?: number;
+}
