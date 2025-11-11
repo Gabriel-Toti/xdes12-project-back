@@ -41,3 +41,13 @@ export async function createProperty(userId: string, {members, ...propertyData}:
         return [property, participation];
     });
 }
+
+export async function getPropertyById(propertyId: string, prisma: PrismaClient) {
+    const property = await prisma.property.findUnique({
+        where: {
+            id: propertyId,
+        }
+    });
+
+    return property;
+}
