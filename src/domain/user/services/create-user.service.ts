@@ -25,7 +25,7 @@ export async function createUserService(userData: CreateUserData, res: Response,
             throw new Error("Falha ao criar usuário");
         }
 
-        const token = getToken({ userId: user.id });
+        const token = getToken({ userId: user.id  });
         
         setAuthCookie(res, token);
 
