@@ -1,5 +1,6 @@
-import { object, string, number, boolean } from "yup";
+import { object, string, number, boolean, array } from "yup";
 import { PropertyType } from "../enum/property-type.enum";
+import { IdSchema } from "./base/id.validation";
 
 export const CreatePropertySchema = object().shape({
     name: string()
@@ -30,6 +31,11 @@ export const CreatePropertySchema = object().shape({
     garage: boolean()
         .required("Garagem é obrigatória"),
     external_area: boolean()
-        .required("Área externa é obrigatória")
+        .required("Área externa é obrigatória"),
+    members: array().of(
+        object().shape({
+        id: IdSchema.required("ID do membro é obrigatório"),
+    }))
+    .required("Membros são obrigatórios"),
 });
 

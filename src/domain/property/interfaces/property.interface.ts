@@ -1,5 +1,9 @@
 import { PropertyType } from "../../../utils/enum/property-type.enum";
 
+export interface Member {
+    id: string;
+}
+
 export interface CreatePropertyData {
     name: string;
     type: PropertyType;
@@ -10,4 +14,5 @@ export interface CreatePropertyData {
     total_bathrooms: number;
     garage: boolean;
     external_area: boolean;
+    members: Member[]
 }
