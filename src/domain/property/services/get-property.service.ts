@@ -23,7 +23,15 @@ export async function getPropertyService(id: string, prisma: PrismaClient) {
             }
         }
 
-        return { property, majorPreferences };
+        const cleanProperty = property ? {
+            ...property,
+            rule: property.rule.map(r => ({
+                name: r.attribute.name,
+                value: r.attribute.value
+            }))
+        } : null;
+
+        return { cleanProperty, majorPreferences };
 
     } catch (error) {
         throw error;

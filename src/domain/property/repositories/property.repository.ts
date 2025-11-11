@@ -47,10 +47,18 @@ export async function getPropertyById(id: string, prisma: PrismaClient) {
         {
             where: {
                 id
+            },
+            include: {
+                rule: {
+                    include: {
+                        attribute: true
+                    }
+                }
             }
         }
     );
 }
+
 
 export async function getParticipantsPreferences(id: string, prisma: PrismaClient) {
 
