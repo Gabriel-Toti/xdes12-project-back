@@ -13,6 +13,7 @@ const prisma = new PrismaClient();
 router.post('/user', inputValidateMiddleware(CreateUserSchema), UserController.createUser(prisma));
 router.post('/login', inputValidateMiddleware(LoginSchema), UserController.login(prisma));
 router.put('/user', authMiddleware(), inputValidateMiddleware(EditUserSchema), UserController.updateUser(prisma));
+router.get('/me', authMiddleware(), UserController.getUser(prisma));
 router.delete('/user', authMiddleware(), inputValidateMiddleware(EditUserSchema), UserController.deleteUser(prisma));
 
 export default router;
