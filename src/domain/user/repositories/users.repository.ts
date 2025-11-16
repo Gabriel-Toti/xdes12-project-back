@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { CreateUserData, UpdateUserData } from "../interfaces/user-data.interface";
+import { toISOLocaleString } from "../../../utils/date-format";
 
 
 
@@ -43,7 +44,8 @@ export async function updateLastLogin(email: string, now: string, prisma: Prisma
                 email,
             },
             data: {
-                last_login: now
+                last_login: now,
+                active: true
             }
         }
     );
@@ -64,10 +66,15 @@ export async function updateUser(userId: string, userData: UpdateUserData, prism
 }
 
 export async function deleteUser(userId: string, prisma: PrismaClient) {
-    return prisma.users.delete(
+    return prisma.users.update(
         {
             where: {
                 id: userId
+            },
+            data:
+            {
+                active: false,
+                deletedat: toISOLocaleString(new Date())
             }
         }
     );

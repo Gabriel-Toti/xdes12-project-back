@@ -1,0 +1,1 @@
+export * as PropertyController from "./property.controller";

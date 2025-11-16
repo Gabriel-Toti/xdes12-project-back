@@ -20,7 +20,7 @@ export async function createPreferencesService(userId: string, preferencePayload
 
         const names = preferencePayload.map((p) => p.name);
 
-        const exists = await userPreferencesExists(userId, names, prisma)
+        const exists = await userPreferencesExists(userId, names, prisma);
 
         if(exists.length > 0)
         {

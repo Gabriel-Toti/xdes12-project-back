@@ -21,7 +21,6 @@ export function authMiddleware() {
       }
 
       req.headers.userId = decoded.userId;
-      req.headers.userRole = decoded.userRole;
 
       next();
     } catch (error: any) {
