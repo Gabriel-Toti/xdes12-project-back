@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { handleError } from "../../../utils/error-handler";
 import { createPropertyService } from "../services/create-property.service";
 import { CreatePropertyData } from "../interfaces/property.interface";
+import { getPropertyService } from "../services/get-property.service";
 
 export function createProperty(prisma: PrismaClient) {
     return async function (req: Request, res: Response) {
@@ -11,9 +12,32 @@ export function createProperty(prisma: PrismaClient) {
 
             const { userId } = req.headers;
 
-            await createPropertyService(userId as string, propertyData, prisma);
+            const property = await createPropertyService(userId as string, propertyData, prisma);
 
-            res.status(204).send();
+            if (!property || property.length === 0) {
+                throw new Error("Erro ao criar o imóvel.");
+            }
+
+            const propertyResult = property[0] as { id: string };
+
+            res.status(200).json({
+                id: propertyResult.id
+            });
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    }
+}
+
+export function getProperty(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { id } = req.params;
+
+            const result = await getPropertyService(id as string, prisma);
+
+            res.status(200).json(result);
         } catch (error: any) {
             const e = handleError(error);
             res.status(e.status).json(e.error);

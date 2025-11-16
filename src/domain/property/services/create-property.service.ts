@@ -15,7 +15,7 @@ export async function createPropertyService(userId: string, propertyData: Create
             throw new NotDefined("Não foi possível encontrar o usuário.");
         }
 
-        await createProperty(userId, propertyData, prisma);
+        return await createProperty(userId, propertyData, prisma);
     } catch (error) {
         throw error;
     }

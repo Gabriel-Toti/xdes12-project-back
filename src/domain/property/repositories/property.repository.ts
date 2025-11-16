@@ -42,12 +42,42 @@ export async function createProperty(userId: string, {members, ...propertyData}:
     });
 }
 
-export async function getPropertyById(propertyId: string, prisma: PrismaClient) {
-    const property = await prisma.property.findUnique({
-        where: {
-            id: propertyId,
+export async function getPropertyById(id: string, prisma: PrismaClient) {
+    return prisma.property.findUnique(
+        {
+            where: {
+                id
+            },
+            include: {
+                rule: {
+                    include: {
+                        attribute: true
+                    }
+                }
+            }
         }
+    );
+}
+
+
+export async function getParticipantsPreferences(id: string, prisma: PrismaClient) {
+
+    const participants = await prisma.participation.findMany({
+        where: { id_property: id },
+        select: { id_user: true },
     });
 
-    return property;
+    const userIds = participants.map(p => p.id_user);
+    
+    if (userIds.length === 0) return [];
+
+    return prisma.preferences.findMany({
+        where: {
+            id_user: { in: userIds },
+        },
+        include: {
+            attribute: true,
+        },
+    });
+    
 }
