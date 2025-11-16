@@ -15,5 +15,6 @@ router.post('/user', inputValidateMiddleware(CreateUserSchema), UserController.c
 router.post('/login', inputValidateMiddleware(LoginSchema), UserController.login(prisma));
 router.put('/user', authMiddleware(), inputValidateMiddleware(EditUserSchema), validateUserMiddleware(prisma), UserController.updateUser(prisma));
 router.delete('/user', authMiddleware(), inputValidateMiddleware(EditUserSchema), validateUserMiddleware(prisma), UserController.deleteUser(prisma));
+router.get('/me', authMiddleware(), UserController.getUser(prisma));
 
 export default router;

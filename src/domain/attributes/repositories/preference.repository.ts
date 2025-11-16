@@ -10,7 +10,8 @@ export async function createPreferences(userId: string, weight: number[], prefer
             const attr = await tx.attributes.create(
                 {
                     data: {
-                        ...preferenceData[i]!
+                        name: preferenceData[i]!.name,
+                        value: preferenceData[i]!.value.toString()
                     }
                 }
             );
