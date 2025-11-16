@@ -2,8 +2,10 @@ import { PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
 import { handleError } from "../../../utils/error-handler";
 import { createPropertyService } from "../services/create-property.service";
-import { CreatePropertyData } from "../interfaces/property.interface";
+import { CreatePropertyData, UpdatePropertyData } from "../interfaces/property.interface";
 import { getPropertyService } from "../services/get-property.service";
+import { updatePropertyService } from "../services/update-property.service";
+import { deletePropertyService } from "../services/delete-property.service";
 
 export function createProperty(prisma: PrismaClient) {
     return async function (req: Request, res: Response) {
@@ -38,6 +40,39 @@ export function getProperty(prisma: PrismaClient) {
             const result = await getPropertyService(id as string, prisma);
 
             res.status(200).json(result);
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    }
+}
+
+export function updateProperty(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { userId } = req.headers;
+            const { id } = req.params;
+            const propertyData: UpdatePropertyData = req.body;
+
+            await updatePropertyService(userId as string, id as string, propertyData, prisma);
+
+            res.status(204).send();
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    }
+}
+
+export function deleteProperty(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { userId } = req.headers;
+            const { id } = req.params;
+
+            await deletePropertyService(userId as string, id as string, prisma);
+
+            res.status(204).send();
         } catch (error: any) {
             const e = handleError(error);
             res.status(e.status).json(e.error);

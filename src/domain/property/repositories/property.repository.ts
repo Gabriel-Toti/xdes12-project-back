@@ -98,3 +98,11 @@ export async function updateProperty(
         }
     );
 }
+
+export async function getParticipantsByProperty(propertyId: string, prisma: PrismaClient) {
+    return prisma.participation.findMany({
+        where: {
+            id_property: propertyId,
+        },
+    });
+}
