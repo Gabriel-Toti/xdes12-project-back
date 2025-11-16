@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from "@prisma/client";
-import { CreatePropertyData } from "../interfaces/property.interface";
+import { CreatePropertyData, UpdatePropertyData } from "../interfaces/property.interface";
 import { NotDefined } from "../../../utils/errors/not-defined";
 
 export async function createProperty(userId: string, {members, ...propertyData}: CreatePropertyData, prisma: PrismaClient) {
@@ -80,4 +80,29 @@ export async function getParticipantsPreferences(id: string, prisma: PrismaClien
         },
     });
     
+}
+
+export async function updateProperty(
+    propertyId: string,
+    propertyData: UpdatePropertyData,
+    prisma: PrismaClient
+) {
+    return prisma.property.update(
+        {
+            where: {
+                id: propertyId
+            },
+            data: {
+                ...propertyData
+            }
+        }
+    );
+}
+
+export async function getParticipantsByProperty(propertyId: string, prisma: PrismaClient) {
+    return prisma.participation.findMany({
+        where: {
+            id_property: propertyId,
+        },
+    });
 }

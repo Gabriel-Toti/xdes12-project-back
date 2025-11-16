@@ -1,9 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 import { getParticipantsPreferences, getPropertyById } from "../repositories/property.repository";
+import { NotDefined } from "../../../utils/errors/not-defined";
 
 export async function getPropertyService(id: string, prisma: PrismaClient) {
     try {
         const property = await getPropertyById(id, prisma);
+
+        if(!property)
+        {
+            throw new NotDefined("Propriedade inexistente");
+        }
 
         const preferences = await getParticipantsPreferences(id, prisma);
 

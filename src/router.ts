@@ -3,6 +3,8 @@ import userRouter from './domain/user/routes/user.routes'
 import preferencesRouter from "./domain/attributes/routes/preferences.routes"
 import propertyRouter from "./domain/property/routers/property.routes"
 import rulesRouter from "./domain/attributes/routes/rules.routes"
+import announcementRouter from "./domain/announcement/routes/announcement.routes"
+import matchesRouter from "./domain/matches/routes/matches.routes"
 
 const router = Router();
 
@@ -13,5 +15,7 @@ router.use(userRouter);
 router.use(preferencesRouter);
 router.use(propertyRouter);
 router.use(rulesRouter);
+router.use(announcementRouter);
+router.use(matchesRouter);
 
 export { router };
