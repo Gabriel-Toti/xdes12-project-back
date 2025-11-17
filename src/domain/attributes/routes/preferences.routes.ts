@@ -16,5 +16,6 @@ router.post('/preference', authMiddleware(), validateUserMiddleware(prisma), inp
 router.put('/preference', authMiddleware(), validateUserMiddleware(prisma), inputValidateMiddleware(UpdatePreferenceSchema), PreferenceController.updatePreferences(prisma));
 router.get('/preference/model', PreferenceController.getPreferencesModel());
 router.delete('/preference/:name', authMiddleware(), validateUserMiddleware(prisma), inputValidateMiddleware(DeletePreferenceSchema), PreferenceController.deletePreferences(prisma));
+router.get('/preference', authMiddleware(), validateUserMiddleware(prisma), PreferenceController.getPreferences(prisma));
 
 export default router;

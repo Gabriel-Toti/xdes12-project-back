@@ -46,11 +46,28 @@ export function getAnnouncement(prisma: PrismaClient) {
 export function getAnnouncements(prisma: PrismaClient) {
     return async function (req: Request, res: Response) {
         try {
-            const { userId } = req.headers;
             const { propertyId } = req.query;
 
             const announcements = await getAnnouncementsService(
-                userId as string | undefined,
+                propertyId as string | undefined,
+                prisma
+            );
+
+            res.status(200).json(announcements);
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    };
+}
+
+export function getPublicAnnouncements(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { propertyId } = req.query;
+
+            // Rota pública: retorna todos os anúncios ativos, sem necessidade de autenticação
+            const announcements = await getAnnouncementsService(
                 propertyId as string | undefined,
                 prisma
             );

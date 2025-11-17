@@ -106,3 +106,30 @@ export async function getParticipantsByProperty(propertyId: string, prisma: Pris
         },
     });
 }
+
+export async function getUserProperties(userId: string, prisma: PrismaClient) {
+    return prisma.participation.findMany({
+        where: {
+            id_user: userId,
+            admin: true
+        },
+        include: {
+            property: {
+                include: {
+                    rule: {
+                        include: {
+                            attribute: true
+                        }
+                    },
+                    announcement: {
+                        where: {
+                            vacancies: {
+                                gt: 0
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+}

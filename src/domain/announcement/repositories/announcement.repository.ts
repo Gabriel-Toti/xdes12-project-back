@@ -29,6 +29,12 @@ export async function getAnnouncementById(propertyId: string, number: number, pr
                             attribute: true,
                         },
                     },
+                    participation: {
+                        select: {
+                            id_user: true,
+                            admin: true,
+                        },
+                    },
                 },
             },
             matches: {
@@ -80,7 +86,12 @@ export async function getAnnouncementsByProperty(propertyId: string, prisma: Pri
 }
 
 export async function getAllAnnouncements(prisma: PrismaClient) {
-    return prisma.announcement.findMany({
+    const announcements = await prisma.announcement.findMany({
+        where: {
+            vacancies: {
+                gt: 0, // Apenas anúncios com vagas disponíveis
+            },
+        },
         include: {
             property: {
                 include: {
@@ -93,8 +104,21 @@ export async function getAllAnnouncements(prisma: PrismaClient) {
             },
         },
         orderBy: {
-            created_at: 'desc',
+            created_at: 'desc', // Ordenar por data primeiro
         },
+    });
+
+    // Ordenar manualmente: boost primeiro, depois por data
+    return announcements.sort((a, b) => {
+        const aBoost = a.boost === true ? 1 : 0;
+        const bBoost = b.boost === true ? 1 : 0;
+        if (aBoost !== bBoost) {
+            return bBoost - aBoost; // Boost primeiro
+        }
+        // Se ambos têm ou não têm boost, manter ordem por data
+        const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return bDate - aDate; // Mais recentes primeiro
     });
 }
 

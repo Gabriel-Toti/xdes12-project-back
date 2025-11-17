@@ -122,3 +122,16 @@ export function getUserPreferences(userId: string, prisma: PrismaClient)
         }
     );
 }
+
+export function getUserPreferencesWithAttributes(userId: string, prisma: PrismaClient) {
+    return prisma.preferences.findMany(
+        {
+            where: {
+                id_user: userId
+            },
+            include: {
+                attribute: true
+            }
+        }
+    );
+}
