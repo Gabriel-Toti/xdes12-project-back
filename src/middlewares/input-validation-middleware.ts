@@ -12,11 +12,11 @@ export function inputValidateMiddleware(schema: AnySchema)
                 ...req.query,
                 ...req.headers
             };
-
             await schema.validate(input, { abortEarly: false });
             
             next();
         } catch (error: any) {
+            console.log(error);
             const yupError = error as ValidationError;
             const errors: Record<string, string> = {};
 

@@ -20,6 +20,13 @@ router.post(
     AnnouncementController.createAnnouncement(prisma)
 );
 
+// Rota pública para listar anúncios (não requer autenticação)
+router.get(
+    '/announcement/public',
+    AnnouncementController.getPublicAnnouncements(prisma)
+);
+
+// Rota autenticada para listar anúncios (pode filtrar por propriedade do usuário)
 router.get(
     '/announcement',
     authMiddleware(),

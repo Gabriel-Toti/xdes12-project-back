@@ -5,6 +5,8 @@ import { createUserService } from "../services/create-user.service";
 import { loginService } from "../services/login.service";
 import { UpdateUserService } from "../services/update-user.service";
 import { deleteUserService } from "../services/delete-user.service";
+import { getUserById } from "../repositories/users.repository";
+import { NotFound } from "../../../utils/errors/not-found";
 
 export function createUser(prisma: PrismaClient)
 {
@@ -64,6 +66,31 @@ export function deleteUser(prisma: PrismaClient)
             await deleteUserService(userId as string, prisma);
 
             res.status(204).send();
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    }
+}
+
+export function getMe(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { userId } = req.headers;
+
+            if (!userId) {
+                throw new NotFound("Usuário não encontrado.");
+            }
+
+            const user = await getUserById(userId as string, prisma);
+
+            if (!user) {
+                throw new NotFound("Usuário não encontrado.");
+            }
+
+            const { password, reset_password_code, ...safeUser } = user;
+
+            res.status(200).json(safeUser);
         } catch (error: any) {
             const e = handleError(error);
             res.status(e.status).json(e.error);

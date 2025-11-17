@@ -6,6 +6,7 @@ import { CreatePropertyData, UpdatePropertyData } from "../interfaces/property.i
 import { getPropertyService } from "../services/get-property.service";
 import { updatePropertyService } from "../services/update-property.service";
 import { deletePropertyService } from "../services/delete-property.service";
+import { getUserProperties } from "../repositories/property.repository";
 
 export function createProperty(prisma: PrismaClient) {
     return async function (req: Request, res: Response) {
@@ -73,6 +74,40 @@ export function deleteProperty(prisma: PrismaClient) {
             await deletePropertyService(userId as string, id as string, prisma);
 
             res.status(204).send();
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    }
+}
+
+export function getUserPropertiesList(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { userId } = req.headers;
+
+            const participations = await getUserProperties(userId as string, prisma);
+
+            const properties = participations.map(p => ({
+                id: p.property.id,
+                name: p.property.name,
+                type: p.property.type,
+                address: p.property.address,
+                costs: p.property.costs,
+                total_vacancies: p.property.total_vacancies,
+                total_dorms: p.property.total_dorms,
+                total_bathrooms: p.property.total_bathrooms,
+                garage: p.property.garage,
+                external_area: p.property.external_area,
+                created_at: p.property.created_at,
+                rules: p.property.rule.map(r => ({
+                    name: r.attribute.name,
+                    value: r.attribute.value
+                })),
+                active_announcements: p.property.announcement.length
+            }));
+
+            res.status(200).json(properties);
         } catch (error: any) {
             const e = handleError(error);
             res.status(e.status).json(e.error);

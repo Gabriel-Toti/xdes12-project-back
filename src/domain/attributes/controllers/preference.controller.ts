@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { getAttributeConfig } from "../../../utils/attributes";
 import { updatePreferenceService } from "../services/update-preference.service";
 import { deletePreferenceService } from "../services/delete-preference.service";
+import { getUserPreferencesWithAttributes } from "../repositories/preference.repository";
 
 export function createPreferences(prisma: PrismaClient) {
     return async function (req: Request, res: Response) {
@@ -67,6 +68,27 @@ export function deletePreferences(prisma: PrismaClient) {
 
             res.status(204).send();
 
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    }
+}
+
+export function getPreferences(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { userId } = req.headers;
+
+            const preferences = await getUserPreferencesWithAttributes(userId as string, prisma);
+
+            const serialized = preferences.map((preference) => ({
+                name: preference.attribute.name,
+                value: preference.attribute.value,
+                weight: preference.weight
+            }));
+
+            res.status(200).json(serialized);
         } catch (error: any) {
             const e = handleError(error);
             res.status(e.status).json(e.error);

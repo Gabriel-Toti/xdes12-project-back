@@ -48,4 +48,11 @@ router.delete(
     PropertyController.deleteProperty(prisma)
 );
 
+router.get(
+    '/property',
+    authMiddleware(),
+    validateUserMiddleware(prisma),
+    PropertyController.getUserPropertiesList(prisma)
+);
+
 export default router;
