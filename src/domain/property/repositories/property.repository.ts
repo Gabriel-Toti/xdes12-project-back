@@ -53,6 +53,11 @@ export async function getPropertyById(id: string, prisma: PrismaClient) {
                     include: {
                         attribute: true
                     }
+                },
+                images: {
+                    orderBy: {
+                        created_at: 'asc'
+                    }
                 }
             }
         }
@@ -126,6 +131,18 @@ export async function getUserProperties(userId: string, prisma: PrismaClient) {
                             vacancies: {
                                 gt: 0
                             }
+                        },
+                        include: {
+                            images: {
+                                orderBy: {
+                                    created_at: 'asc'
+                                }
+                            }
+                        }
+                    },
+                    images: {
+                        orderBy: {
+                            created_at: 'asc'
                         }
                     }
                 }

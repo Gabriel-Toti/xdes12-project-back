@@ -16,7 +16,6 @@ export function inputValidateMiddleware(schema: AnySchema)
             
             next();
         } catch (error: any) {
-            console.log(error);
             const yupError = error as ValidationError;
             const errors: Record<string, string> = {};
 

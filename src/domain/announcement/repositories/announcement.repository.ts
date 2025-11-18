@@ -35,6 +35,11 @@ export async function getAnnouncementById(propertyId: string, number: number, pr
                             admin: true,
                         },
                     },
+                    images: {
+                        orderBy: {
+                            created_at: 'asc'
+                        }
+                    },
                 },
             },
             matches: {
@@ -47,6 +52,11 @@ export async function getAnnouncementById(propertyId: string, number: number, pr
                         },
                     },
                 },
+            },
+            images: {
+                orderBy: {
+                    created_at: 'asc'
+                }
             },
         },
     });
@@ -65,6 +75,11 @@ export async function getAnnouncementsByProperty(propertyId: string, prisma: Pri
                             attribute: true,
                         },
                     },
+                    images: {
+                        orderBy: {
+                            created_at: 'asc'
+                        }
+                    },
                 },
             },
             matches: {
@@ -78,6 +93,11 @@ export async function getAnnouncementsByProperty(propertyId: string, prisma: Pri
                     },
                 },
             },
+            images: {
+                orderBy: {
+                    created_at: 'asc'
+                }
+            },
         },
         orderBy: {
             created_at: 'desc',
@@ -87,11 +107,6 @@ export async function getAnnouncementsByProperty(propertyId: string, prisma: Pri
 
 export async function getAllAnnouncements(prisma: PrismaClient) {
     const announcements = await prisma.announcement.findMany({
-        where: {
-            vacancies: {
-                gt: 0, // Apenas anúncios com vagas disponíveis
-            },
-        },
         include: {
             property: {
                 include: {
@@ -100,7 +115,23 @@ export async function getAllAnnouncements(prisma: PrismaClient) {
                             attribute: true,
                         },
                     },
+                    participation: {
+                        select: {
+                            id_user: true,
+                            admin: true,
+                        },
+                    },
+                    images: {
+                        orderBy: {
+                            created_at: 'asc'
+                        }
+                    },
                 },
+            },
+            images: {
+                orderBy: {
+                    created_at: 'asc'
+                }
             },
         },
         orderBy: {

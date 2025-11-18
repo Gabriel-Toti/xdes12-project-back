@@ -8,6 +8,7 @@ import { UpdatePropertySchema } from "../../../utils/validations/update-property
 import { validateUserMiddleware } from "../../../middlewares/validate-user.middleware";
 import { IdSchema } from "../../../utils/validations/base/id.validation";
 import { object } from "yup";
+import { uploadMultiple } from "../../../middlewares/upload.middleware";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -53,6 +54,28 @@ router.get(
     authMiddleware(),
     validateUserMiddleware(prisma),
     PropertyController.getUserPropertiesList(prisma)
+);
+
+router.post(
+    '/property/:id/image',
+    authMiddleware(),
+    validateUserMiddleware(prisma),
+    inputValidateMiddleware(object().shape({
+        id: IdSchema.required("O id é obrigatório."),
+    })),
+    uploadMultiple.array('images', 10),
+    PropertyController.uploadPropertyImage(prisma)
+);
+
+router.delete(
+    '/property/:id/image/:imageId',
+    authMiddleware(),
+    validateUserMiddleware(prisma),
+    inputValidateMiddleware(object().shape({
+        id: IdSchema.required("O id é obrigatório."),
+        imageId: IdSchema.required("O id da imagem é obrigatório."),
+    })),
+    PropertyController.deletePropertyImage(prisma)
 );
 
 export default router;

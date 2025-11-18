@@ -7,6 +7,7 @@ import { UpdateUserService } from "../services/update-user.service";
 import { deleteUserService } from "../services/delete-user.service";
 import { getUserById } from "../repositories/users.repository";
 import { NotFound } from "../../../utils/errors/not-found";
+import { revokeAuthCookie } from "../../../utils/cookie";
 
 export function createUser(prisma: PrismaClient)
 {
@@ -91,6 +92,18 @@ export function getMe(prisma: PrismaClient) {
             const { password, reset_password_code, ...safeUser } = user;
 
             res.status(200).json(safeUser);
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    }
+}
+
+export function logout(_prisma: PrismaClient) {
+    return async function (_req: Request, res: Response) {
+        try {
+            revokeAuthCookie(res);
+            res.status(200).json({ message: "Logout realizado com sucesso" });
         } catch (error: any) {
             const e = handleError(error);
             res.status(e.status).json(e.error);

@@ -100,6 +100,7 @@ export function getUserPropertiesList(prisma: PrismaClient) {
                 garage: p.property.garage,
                 external_area: p.property.external_area,
                 created_at: p.property.created_at,
+                image_url: p.property.image_url,
                 rules: p.property.rule.map(r => ({
                     name: r.attribute.name,
                     value: r.attribute.value
@@ -113,4 +114,116 @@ export function getUserPropertiesList(prisma: PrismaClient) {
             res.status(e.status).json(e.error);
         }
     }
+}
+
+export function uploadPropertyImage(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { userId } = req.headers;
+            const { id } = req.params;
+            const files = (req as any).files as Express.Multer.File[];
+
+            if (!files || files.length === 0) {
+                return res.status(400).json({ error: "Nenhuma imagem foi enviada" });
+            }
+
+            if (!id) {
+                return res.status(400).json({ error: "ID do imóvel é obrigatório" });
+            }
+
+            // Verificar se o usuário é admin do imóvel
+            const property = await getPropertyService(id, prisma);
+            if (!property) {
+                return res.status(404).json({ error: "Imóvel não encontrado" });
+            }
+
+            const participants = await prisma.participation.findMany({
+                where: {
+                    id_property: id,
+                    id_user: userId as string,
+                    admin: true
+                }
+            });
+
+            if (participants.length === 0) {
+                return res.status(403).json({ error: "Apenas administradores do imóvel podem fazer upload de imagens" });
+            }
+
+            // Salvar múltiplas imagens
+            const imageUrls = files.map(file => `/uploads/${file.filename}`);
+            
+            const createdImages = await prisma.property_image.createMany({
+                data: imageUrls.map(imageUrl => ({
+                    id_property: id,
+                    image_url: imageUrl
+                }))
+            });
+
+            res.status(200).json({ 
+                images: imageUrls,
+                count: createdImages.count
+            });
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    };
+}
+
+export function deletePropertyImage(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { userId } = req.headers;
+            const { id, imageId } = req.params;
+            const fs = require('fs');
+            const path = require('path');
+
+            if (!id || !imageId) {
+                return res.status(400).json({ error: "ID do imóvel e ID da imagem são obrigatórios" });
+            }
+
+            // Verificar se o usuário é admin do imóvel
+            const property = await getPropertyService(id, prisma);
+            if (!property) {
+                return res.status(404).json({ error: "Imóvel não encontrado" });
+            }
+
+            const participants = await prisma.participation.findMany({
+                where: {
+                    id_property: id,
+                    id_user: userId as string,
+                    admin: true
+                }
+            });
+
+            if (participants.length === 0) {
+                return res.status(403).json({ error: "Apenas administradores do imóvel podem deletar imagens" });
+            }
+
+            // Buscar a imagem
+            const image = await prisma.property_image.findUnique({
+                where: { id: imageId }
+            });
+
+            if (!image || image.id_property !== id) {
+                return res.status(404).json({ error: "Imagem não encontrada" });
+            }
+
+            // Deletar arquivo físico
+            const filePath = path.join(process.cwd(), image.image_url);
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+
+            // Deletar do banco de dados
+            await prisma.property_image.delete({
+                where: { id: imageId }
+            });
+
+            res.status(200).json({ message: "Imagem deletada com sucesso" });
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    };
 }

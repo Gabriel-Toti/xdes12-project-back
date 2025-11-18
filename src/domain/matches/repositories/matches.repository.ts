@@ -30,6 +30,7 @@ export async function createMatch(matchData: CreateMatchData, prisma: PrismaClie
                     id: true,
                     name: true,
                     email: true,
+                    phone: true,
                 },
             },
         },
@@ -69,6 +70,7 @@ export async function getMatchById(
                     id: true,
                     name: true,
                     email: true,
+                    phone: true,
                 },
             },
         },
@@ -88,6 +90,21 @@ export async function getMatchesByUser(userId: string, prisma: PrismaClient) {
                             rule: {
                                 include: {
                                     attribute: true,
+                                },
+                            },
+                            participation: {
+                                where: {
+                                    admin: true,
+                                },
+                                include: {
+                                    users: {
+                                        select: {
+                                            id: true,
+                                            name: true,
+                                            email: true,
+                                            phone: true,
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -119,6 +136,7 @@ export async function getMatchesByAnnouncement(
                     id: true,
                     name: true,
                     email: true,
+                    phone: true,
                 },
             },
             announcement: {
@@ -164,6 +182,7 @@ export async function updateMatch(
                     id: true,
                     name: true,
                     email: true,
+                    phone: true,
                 },
             },
         },
