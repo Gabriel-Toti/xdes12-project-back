@@ -13,8 +13,6 @@ export const UpdateRuleSchema = object().shape(
 ).test("is-valid-attribute", "Nome ou valor não condizem com os attributos possíveis", (attr) => {
     if(!attr) return false;
 
-    console.log(attr);
-
     if(attr.value === undefined || attr.value === null)
     {
         return isValidAttributeName(attr.name);

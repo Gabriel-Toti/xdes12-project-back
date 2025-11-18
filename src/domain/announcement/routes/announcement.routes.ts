@@ -8,6 +8,7 @@ import { UpdateAnnouncementSchema } from "../../../utils/validations/update-anno
 import { validateUserMiddleware } from "../../../middlewares/validate-user.middleware";
 import { IdSchema } from "../../../utils/validations/base/id.validation";
 import { object, string } from "yup";
+import { uploadMultiple } from "../../../middlewares/upload.middleware";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -62,6 +63,30 @@ router.delete(
         number: string().required("Número do anúncio é obrigatório"),
     })),
     AnnouncementController.deleteAnnouncement(prisma)
+);
+
+router.post(
+    '/announcement/:propertyId/:number/image',
+    authMiddleware(),
+    validateUserMiddleware(prisma),
+    inputValidateMiddleware(object().shape({
+        propertyId: IdSchema.required("ID da propriedade é obrigatório"),
+        number: string().required("Número do anúncio é obrigatório"),
+    })),
+    uploadMultiple.array('images', 10),
+    AnnouncementController.uploadAnnouncementImage(prisma)
+);
+
+router.delete(
+    '/announcement/:propertyId/:number/image/:imageId',
+    authMiddleware(),
+    validateUserMiddleware(prisma),
+    inputValidateMiddleware(object().shape({
+        propertyId: IdSchema.required("ID da propriedade é obrigatório"),
+        number: string().required("Número do anúncio é obrigatório"),
+        imageId: IdSchema.required("O id da imagem é obrigatório."),
+    })),
+    AnnouncementController.deleteAnnouncementImage(prisma)
 );
 
 export default router;

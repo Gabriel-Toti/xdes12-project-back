@@ -1,6 +1,7 @@
 import express from 'express'; 
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import path from 'path';
 import { router } from './router';
 
 const server = express();
@@ -9,6 +10,8 @@ const allowedOrigins = [process.env.FRONTEND_URL, 'localhost:3000'];
 server.use(express.json());
 server.set("trust proxy", 1); // permitir o uso de cookies seguros
 server.use(cookieParser());
+// Servir arquivos estáticos de uploads
+server.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 server.disable("x-powered-by");
 server.use(cors({
     origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
