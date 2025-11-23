@@ -28,10 +28,12 @@ export function getAnnouncement(prisma: PrismaClient) {
     return async function (req: Request, res: Response) {
         try {
             const { propertyId, number } = req.params;
+            const { userId } = req.headers;
 
             const announcement = await getAnnouncementService(
                 propertyId as string,
                 parseInt(number as string),
+                userId as string | undefined,
                 prisma
             );
 
@@ -47,9 +49,11 @@ export function getAnnouncements(prisma: PrismaClient) {
     return async function (req: Request, res: Response) {
         try {
             const { propertyId } = req.query;
+            const { userId } = req.headers;
 
             const announcements = await getAnnouncementsService(
                 propertyId as string | undefined,
+                userId as string | undefined,
                 prisma
             );
 
@@ -65,10 +69,10 @@ export function getPublicAnnouncements(prisma: PrismaClient) {
     return async function (req: Request, res: Response) {
         try {
             const { propertyId } = req.query;
-
-            // Rota pública: retorna todos os anúncios ativos, sem necessidade de autenticação
+            // Rota pública: não há userId, então não calcula compatibilidade
             const announcements = await getAnnouncementsService(
                 propertyId as string | undefined,
+                undefined, // userId não disponível em rota pública
                 prisma
             );
 
@@ -143,6 +147,7 @@ export function uploadAnnouncementImage(prisma: PrismaClient) {
             const announcement = await getAnnouncementService(
                 propertyId,
                 parseInt(number),
+                userId as string | undefined,
                 prisma
             );
 
@@ -200,6 +205,7 @@ export function deleteAnnouncementImage(prisma: PrismaClient) {
             const announcement = await getAnnouncementService(
                 propertyId,
                 parseInt(number),
+                userId as string | undefined,
                 prisma
             );
 
