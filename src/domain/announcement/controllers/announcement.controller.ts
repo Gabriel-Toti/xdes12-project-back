@@ -14,9 +14,13 @@ export function createAnnouncement(prisma: PrismaClient) {
             const { userId } = req.headers;
             const announcementData: CreateAnnouncementData = req.body;
 
-            await createAnnouncementService(userId as string, announcementData, prisma);
+            const createdAnnouncement = await createAnnouncementService(userId as string, announcementData, prisma);
 
-            res.status(204).send();
+            // Retornar o anúncio criado para que o frontend possa obter o número
+            res.status(201).json({
+                id_property: createdAnnouncement.id_property,
+                number: createdAnnouncement.number
+            });
         } catch (error: any) {
             const e = handleError(error);
             res.status(e.status).json(e.error);

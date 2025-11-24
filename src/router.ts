@@ -5,6 +5,7 @@ import propertyRouter from "./domain/property/routers/property.routes"
 import rulesRouter from "./domain/attributes/routes/rules.routes"
 import announcementRouter from "./domain/announcement/routes/announcement.routes"
 import matchesRouter from "./domain/matches/routes/matches.routes"
+import paymentRouter from "./domain/payment/routes/payment.routes"
 
 const router = Router();
 
@@ -17,5 +18,6 @@ router.use(propertyRouter);
 router.use(rulesRouter);
 router.use(announcementRouter);
 router.use(matchesRouter);
+router.use(paymentRouter);
 
 export { router };
