@@ -8,6 +8,8 @@ import { deleteUserService } from "../services/delete-user.service";
 import { getUserById } from "../repositories/users.repository";
 import { NotFound } from "../../../utils/errors/not-found";
 import { revokeAuthCookie } from "../../../utils/cookie";
+import { requestPasswordResetService } from "../services/request-password-reset.service";
+import { resetPasswordService } from "../services/reset-password.service";
 
 export function createUser(prisma: PrismaClient)
 {
@@ -104,6 +106,36 @@ export function logout(_prisma: PrismaClient) {
         try {
             revokeAuthCookie(res);
             res.status(200).json({ message: "Logout realizado com sucesso" });
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    }
+}
+
+export function requestPasswordReset(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { email } = req.body;
+
+            await requestPasswordResetService(email, prisma);
+
+            res.status(204).send();
+        } catch (error: any) {
+            const e = handleError(error);
+            res.status(e.status).json(e.error);
+        }
+    }
+}
+
+export function resetPassword(prisma: PrismaClient) {
+    return async function (req: Request, res: Response) {
+        try {
+            const { email, code, password } = req.body;
+
+            await resetPasswordService(email, code, password, prisma);
+
+            res.status(204).send();
         } catch (error: any) {
             const e = handleError(error);
             res.status(e.status).json(e.error);

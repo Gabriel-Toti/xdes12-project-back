@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { CreateUserData } from "../interfaces/user-data.interface";
 import { createUser } from "../repositories/users.repository";
-import bcrypt from "bcrypt"
+import * as bcrypt from "bcrypt";
 import { Response } from "express";
 import { setAuthCookie } from "../../../utils/cookie";
 import { getToken } from "../../../utils/token";

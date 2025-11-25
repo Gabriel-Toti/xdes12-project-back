@@ -7,6 +7,8 @@ import { LoginSchema } from "../../../utils/validations/login.validation";
 import { EditUserSchema } from "../../../utils/validations/update-user.validation";
 import { authMiddleware } from "../../../middlewares/auth.middleware";
 import { validateUserMiddleware } from "../../../middlewares/validate-user.middleware";
+import { RequestPasswordResetSchema } from "../../../utils/validations/request-password-reset.validation";
+import { ResetPasswordSchema } from "../../../utils/validations/reset-password.validation";
 
 const router = Router();
 const prisma = new PrismaClient();
@@ -14,6 +16,8 @@ const prisma = new PrismaClient();
 router.post('/user', inputValidateMiddleware(CreateUserSchema), UserController.createUser(prisma));
 router.post('/login', inputValidateMiddleware(LoginSchema), UserController.login(prisma));
 router.post('/logout', UserController.logout(prisma));
+router.post('/password/forgot', inputValidateMiddleware(RequestPasswordResetSchema), UserController.requestPasswordReset(prisma));
+router.post('/password/reset', inputValidateMiddleware(ResetPasswordSchema), UserController.resetPassword(prisma));
 router.put('/user', authMiddleware(), inputValidateMiddleware(EditUserSchema), validateUserMiddleware(prisma), UserController.updateUser(prisma));
 router.delete('/user', authMiddleware(), inputValidateMiddleware(EditUserSchema), validateUserMiddleware(prisma), UserController.deleteUser(prisma));
 router.get('/me', authMiddleware(), validateUserMiddleware(prisma), UserController.getMe(prisma));

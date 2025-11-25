@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import bcrypt from 'bcrypt'
+import * as bcrypt from 'bcrypt';
 import { getUserByEmail, updateLastLogin } from "../repositories/users.repository";
 import { toISOLocaleString } from "../../../utils/date-format";
 import { getToken } from "../../../utils/token";
