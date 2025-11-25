@@ -63,31 +63,62 @@ export async function getAnnouncementsService(
                 })
             );
 
-            // Ordenar por: compatibilidade (desc), boost (desc), data (desc)
+            // Ordenar por: compatibilidade com leve boost para anúncios com boost, depois por data
+            // O boost permite que anúncios com boost apareçam à frente de anúncios sem boost
+            // quando a diferença de compatibilidade for de até 4 pontos
             return announcementsWithCompatibility.sort((a, b) => {
-                // Primeiro por compatibilidade (se disponível)
                 const aCompat = a.compatibility ?? 0;
                 const bCompat = b.compatibility ?? 0;
-                if (Math.abs(aCompat - bCompat) > 0.001) {
+                
+                const aHasBoost = a.boost === true;
+                const bHasBoost = b.boost === true;
+                
+                // Calcular diferença absoluta de compatibilidade
+                const compatDiffAbs = Math.abs(aCompat - bCompat);
+                
+                // Se a diferença é maior que 4 pontos, ordenar apenas por compatibilidade
+                if (compatDiffAbs > 4) {
+                    return bCompat - aCompat; // Maior compatibilidade primeiro
+                }
+                
+                // Se a diferença é <= 4 pontos, aplicar boost
+                // Anúncios com boost aparecem antes de anúncios sem boost
+                if (aHasBoost && !bHasBoost) {
+                    // A tem boost, B não tem - A aparece primeiro (mesmo que B tenha até 4 pontos a mais)
+                    return -1;
+                }
+                if (!aHasBoost && bHasBoost) {
+                    // B tem boost, A não tem - B aparece primeiro (mesmo que A tenha até 4 pontos a mais)
+                    return 1;
+                }
+                
+                // Se ambos têm ou não têm boost, ordenar por compatibilidade
+                if (aCompat !== bCompat) {
                     return bCompat - aCompat; // Maior compatibilidade primeiro
                 }
 
-                // Depois por boost
-                const aBoost = a.boost === true ? 1 : 0;
-                const bBoost = b.boost === true ? 1 : 0;
-                if (aBoost !== bBoost) {
-                    return bBoost - aBoost; // Boost primeiro
-                }
-
-                // Por fim, por data
+                // Por fim, por data (mais recentes primeiro)
                 const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
                 const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
-                return bDate - aDate; // Mais recentes primeiro
+                return bDate - aDate;
             });
         }
 
-        // Se não há userId, manter ordenação original (boost e data)
-        return announcements;
+        // Se não há userId, ordenar por boost e data
+        // Anúncios com boost aparecem primeiro, depois por data
+        return announcements.sort((a, b) => {
+            // Primeiro por boost
+            const aBoost = a.boost === true ? 1 : 0;
+            const bBoost = b.boost === true ? 1 : 0;
+            if (aBoost !== bBoost) {
+                return bBoost - aBoost; // Boost primeiro
+            }
+
+            // Depois por data (mais recentes primeiro)
+            const aDate = a.created_at ? new Date(a.created_at).getTime() : 0;
+            const bDate = b.created_at ? new Date(b.created_at).getTime() : 0;
+            return bDate - aDate;
+        });
     } catch (error) {
         throw error;
     }
