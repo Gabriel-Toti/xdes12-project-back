@@ -1,4 +1,5 @@
 // com o deploy planejado para o vercel, esse arquivo serve apenas para desenvolvimento
+import "./config/env";
 import { server } from "./server";
 import http from 'http'
 
