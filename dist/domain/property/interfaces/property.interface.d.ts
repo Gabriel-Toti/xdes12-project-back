@@ -1,0 +1,21 @@
+import { PropertyType } from "../../../utils/enum/property-type.enum";
+export interface Member {
+    id: string;
+}
+export interface CreatePropertyData {
+    name: string;
+    type: PropertyType;
+    costs: string;
+    address: string;
+    total_vacancies: number;
+    total_dorms: number;
+    total_bathrooms: number;
+    garage: boolean;
+    external_area: boolean;
+    members: Member[];
+}
+export interface UpdatePropertyData {
+    costs?: string;
+    total_vacancies?: number;
+}
+//# sourceMappingURL=property.interface.d.ts.map

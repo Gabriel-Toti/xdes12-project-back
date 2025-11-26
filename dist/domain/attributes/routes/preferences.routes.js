@@ -1,0 +1,20 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_middleware_1 = require("../../../middlewares/auth.middleware");
+const controllers_1 = require("../controllers");
+const client_1 = require("@prisma/client");
+const input_validation_middleware_1 = require("../../../middlewares/input-validation-middleware");
+const create_preference_validation_1 = require("../../../utils/validations/create-preference.validation");
+const update_preference_validation_1 = require("../../../utils/validations/update-preference.validation");
+const delete_prefence_validation_1 = require("../../../utils/validations/delete-prefence.validation");
+const validate_user_middleware_1 = require("../../../middlewares/validate-user.middleware");
+const router = (0, express_1.Router)();
+const prisma = new client_1.PrismaClient();
+router.post('/preference', (0, auth_middleware_1.authMiddleware)(), (0, validate_user_middleware_1.validateUserMiddleware)(prisma), (0, input_validation_middleware_1.inputValidateMiddleware)(create_preference_validation_1.CreatePreferenceSchema), controllers_1.PreferenceController.createPreferences(prisma));
+router.put('/preference', (0, auth_middleware_1.authMiddleware)(), (0, validate_user_middleware_1.validateUserMiddleware)(prisma), (0, input_validation_middleware_1.inputValidateMiddleware)(update_preference_validation_1.UpdatePreferenceSchema), controllers_1.PreferenceController.updatePreferences(prisma));
+router.get('/preference/model', controllers_1.PreferenceController.getPreferencesModel());
+router.delete('/preference/:name', (0, auth_middleware_1.authMiddleware)(), (0, validate_user_middleware_1.validateUserMiddleware)(prisma), (0, input_validation_middleware_1.inputValidateMiddleware)(delete_prefence_validation_1.DeletePreferenceSchema), controllers_1.PreferenceController.deletePreferences(prisma));
+router.get('/preference', (0, auth_middleware_1.authMiddleware)(), (0, validate_user_middleware_1.validateUserMiddleware)(prisma), controllers_1.PreferenceController.getPreferences(prisma));
+exports.default = router;
+//# sourceMappingURL=preferences.routes.js.map

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { logger } from "../../../config/logger";
+import { logger } from "../../../utils/logger";
 import { getNotifications, getUnreadCount } from "../services/get-notifications.service";
 import { markAsRead, markAllAsRead } from "../services/mark-as-read.service";
 
@@ -66,6 +66,14 @@ export async function markAsReadController(req: Request, res: Response) {
     }
 
     const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        error: {
+          type: "BadRequest",
+          message: "ID da notificação é obrigatório"
+        }
+      });
+    }
     await markAsRead(id, userId);
     return res.status(200).json({ message: "Notificação marcada como lida" });
   } catch (error: any) {

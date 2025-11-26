@@ -1,0 +1,25 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const controllers_1 = require("../controllers");
+const client_1 = require("@prisma/client");
+const input_validation_middleware_1 = require("../../../middlewares/input-validation-middleware");
+const create_user_validation_1 = require("../../../utils/validations/create-user.validation");
+const login_validation_1 = require("../../../utils/validations/login.validation");
+const update_user_validation_1 = require("../../../utils/validations/update-user.validation");
+const auth_middleware_1 = require("../../../middlewares/auth.middleware");
+const validate_user_middleware_1 = require("../../../middlewares/validate-user.middleware");
+const request_password_reset_validation_1 = require("../../../utils/validations/request-password-reset.validation");
+const reset_password_validation_1 = require("../../../utils/validations/reset-password.validation");
+const router = (0, express_1.Router)();
+const prisma = new client_1.PrismaClient();
+router.post('/user', (0, input_validation_middleware_1.inputValidateMiddleware)(create_user_validation_1.CreateUserSchema), controllers_1.UserController.createUser(prisma));
+router.post('/login', (0, input_validation_middleware_1.inputValidateMiddleware)(login_validation_1.LoginSchema), controllers_1.UserController.login(prisma));
+router.post('/logout', controllers_1.UserController.logout(prisma));
+router.post('/password/forgot', (0, input_validation_middleware_1.inputValidateMiddleware)(request_password_reset_validation_1.RequestPasswordResetSchema), controllers_1.UserController.requestPasswordReset(prisma));
+router.post('/password/reset', (0, input_validation_middleware_1.inputValidateMiddleware)(reset_password_validation_1.ResetPasswordSchema), controllers_1.UserController.resetPassword(prisma));
+router.put('/user', (0, auth_middleware_1.authMiddleware)(), (0, input_validation_middleware_1.inputValidateMiddleware)(update_user_validation_1.EditUserSchema), (0, validate_user_middleware_1.validateUserMiddleware)(prisma), controllers_1.UserController.updateUser(prisma));
+router.delete('/user', (0, auth_middleware_1.authMiddleware)(), (0, input_validation_middleware_1.inputValidateMiddleware)(update_user_validation_1.EditUserSchema), (0, validate_user_middleware_1.validateUserMiddleware)(prisma), controllers_1.UserController.deleteUser(prisma));
+router.get('/me', (0, auth_middleware_1.authMiddleware)(), (0, validate_user_middleware_1.validateUserMiddleware)(prisma), controllers_1.UserController.getMe(prisma));
+exports.default = router;
+//# sourceMappingURL=user.routes.js.map

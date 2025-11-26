@@ -1,7 +1,7 @@
 import * as cron from 'node-cron';
 import { PrismaClient } from '@prisma/client';
-import { sendEmail } from '../utils/mailer';
-import { logger } from '../config/logger';
+import { sendMail } from '../utils/mailer';
+import { logger } from '../utils/logger';
 import { createNotification } from '../domain/notification/services/create-notification.service';
 
 const prisma = new PrismaClient();
@@ -37,7 +37,7 @@ async function sendInactivityReminders() {
         });
 
         // Enviar email (apenas se não enviou recentemente)
-        await sendEmail({
+        await sendMail({
           to: user.email,
           subject: 'Sentimos sua falta! Novos imóveis disponíveis 🏠',
           html: `
@@ -127,8 +127,9 @@ async function sendPendingMatchesReminders() {
     }
 
     // Enviar lembretes para admins
-    for (const [propertyId, matches] of matchesByProperty) {
-      const property = matches[0].announcement.property;
+    for (const [, matches] of matchesByProperty) {
+      const property = matches[0]?.announcement?.property;
+      if (!property) continue;
       const admins = property.participation.filter(p => p.admin);
 
       for (const admin of admins) {
@@ -141,7 +142,7 @@ async function sendPendingMatchesReminders() {
             link: `/imoveis`
           });
 
-          await sendEmail({
+          await sendMail({
             to: admin.users.email,
             subject: `${matches.length} pessoa(s) interessada(s) no seu imóvel! 🏠`,
             html: `
@@ -229,7 +230,7 @@ async function sendWeeklyHighlights() {
           link: '/anuncios'
         });
 
-        await sendEmail({
+        await sendMail({
           to: user.email,
           subject: `✨ ${recentAnnouncements.length} novos imóveis esta semana!`,
           html: `
