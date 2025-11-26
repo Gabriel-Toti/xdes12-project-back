@@ -6,6 +6,8 @@ import { getToken } from "../../../utils/token";
 import { Response } from "express";
 import { setAuthCookie } from "../../../utils/cookie";
 import { Unauthorized } from "../../../utils/errors/unauthorized";
+import { getNotifications } from "../../notification/services/get-notifications.service";
+import { createNotification } from "../../notification/services/create-notification.service";
 
 export async function loginService(email: string, password: string, res: Response, prisma: PrismaClient) {
     try {
@@ -35,6 +37,23 @@ export async function loginService(email: string, password: string, res: Respons
         const token = getToken({ userId: user.id });
 
         setAuthCookie(res, token);
+
+        // Garante que todos os usuários tenham ao menos uma notificação de boas-vindas.
+        // Para usuários antigos (criados antes desta funcionalidade), criamos na primeira autenticação.
+        try {
+            const existing = await getNotifications(user.id);
+            if (!existing || existing.length === 0) {
+                await createNotification({
+                    id_user: user.id,
+                    type: "welcome",
+                    title: "Bem-vindo ao CASAR",
+                    message: "Que bom ter você de volta! Revise suas preferências e veja os anúncios recomendados para você.",
+                    link: "/anuncios"
+                });
+            }
+        } catch {
+            // Qualquer erro ao criar/consultar notificações não deve quebrar o login
+        }
 
         return;
 

@@ -7,7 +7,8 @@ export async function createNotification(data: ICreateNotification) {
   const notification = await prisma.notification.create({
     data: {
       id_user: data.id_user,
-      type: data.type,
+      // Cast necessário para compatibilizar o union do domínio com o enum gerado pelo Prisma
+      type: data.type as any,
       title: data.title,
       message: data.message,
       link: data.link || null,

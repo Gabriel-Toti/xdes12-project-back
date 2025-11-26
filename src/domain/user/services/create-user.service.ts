@@ -6,6 +6,7 @@ import { Response } from "express";
 import { setAuthCookie } from "../../../utils/cookie";
 import { getToken } from "../../../utils/token";
 import { toISOLocaleString } from "../../../utils/date-format";
+import { createNotification } from "../../notification/services/create-notification.service";
 
 
 export async function createUserService(userData: CreateUserData, res: Response, prisma: PrismaClient) {
@@ -28,6 +29,20 @@ export async function createUserService(userData: CreateUserData, res: Response,
         const token = getToken({ userId: user.id  });
         
         setAuthCookie(res, token);
+
+        // Notificação de boas-vindas padrão para novos usuários
+        try {
+            await createNotification({
+                id_user: user.id,
+                type: "welcome",
+                title: "Bem-vindo ao CASAR",
+                message: "Seu cadastro foi realizado com sucesso. Comece configurando suas preferências para encontrar a república ideal!",
+                link: "/preferencias"
+            });
+        } catch (e) {
+            // Falha ao criar notificação não deve impedir o cadastro
+            // (log poderia ser adicionado aqui se necessário)
+        }
 
     }
     catch (error)

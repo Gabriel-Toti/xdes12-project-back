@@ -1,7 +1,7 @@
 export interface INotification {
   id: string;
   id_user: string;
-  type: 'match_accepted' | 'new_announcement' | 'reminder' | 'system';
+  type: 'match_accepted' | 'new_announcement' | 'reminder' | 'system' | 'welcome';
   title: string;
   message: string;
   link?: string;
@@ -11,7 +11,7 @@ export interface INotification {
 
 export interface ICreateNotification {
   id_user: string;
-  type: 'match_accepted' | 'new_announcement' | 'reminder' | 'system';
+  type: 'match_accepted' | 'new_announcement' | 'reminder' | 'system' | 'welcome';
   title: string;
   message: string;
   link?: string;

@@ -167,4 +167,5 @@ enum notification_type {
   new_announcement
   reminder
   system
+  welcome
 }

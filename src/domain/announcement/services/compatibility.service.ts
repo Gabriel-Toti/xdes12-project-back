@@ -52,18 +52,22 @@ function calculateAttributeCompatibility(
             return 0;
         }
         
-        // Se a regra permite distância maior ou igual à preferência, há compatibilidade
-        if (ruleDistance >= prefDistance) {
-            // Score baseado na proximidade (quanto mais próximo, melhor)
-            // Se a regra permite exatamente a distância desejada, score máximo
-            // Retorna score base (0 a 1), o peso será aplicado no cálculo final
-            const distanceRatio = prefDistance / ruleDistance;
-            const baseScore = Math.min(1, distanceRatio);
-            
-            return baseScore;
+        // Nova regra:
+        // - Se a regra é mais restrita (menor raio) que a preferência => 100% compatível
+        // - Se a regra é mais permissiva (maior raio) que a preferência => compatibilidade
+        //   decai em função da distância (ruleDistance - prefDistance)
+        if (ruleDistance < prefDistance) {
+            // A regra está "dentro" do raio desejado ou é ainda mais restrita
+            return 1;
         }
-        
-        return 0; // Regra não atende à preferência de distância
+
+        const diff = ruleDistance - prefDistance;
+        // Janela de tolerância proporcional à preferência
+        // Ex: pref=2 => span=10km; pref=10 => span=50km
+        const span = Math.max(1, prefDistance * 5);
+        const baseScore = Math.max(0, 1 - diff / span);
+
+        return baseScore;
     }
 
     // Para atributos do tipo "schedule" (horários de silêncio)
@@ -140,6 +144,7 @@ export function calculateUserPropertyCompatibility(
 
     let weightedScore = 0;
     let totalWeight = 0;
+    const missingRulePenaltyFactor = 0.1; // impacto leve e proporcional ao peso
 
     // Para cada preferência do usuário, encontra a regra correspondente e calcula compatibilidade
     for (const preference of userPreferences) {
@@ -162,7 +167,13 @@ export function calculateUserPropertyCompatibility(
             weightedScore += baseCompatibility * preference.weight;
             totalWeight += preference.weight;
         }
-        // Se não há regra correspondente, não adiciona ao score (mas também não penaliza)
+        else {
+            // Se não há regra correspondente:
+            // - não adiciona nada ao numerador (weightedScore permanece igual)
+            // - mas adiciona uma pequena fração do peso ao denominador,
+            //   gerando uma penalização leve proporcional ao peso da preferência
+            totalWeight += preference.weight * missingRulePenaltyFactor;
+        }
     }
 
     // Retorna a média ponderada: soma dos scores ponderados dividido pela soma dos pesos
@@ -198,7 +209,6 @@ export async function calculatePropertyCompatibility(
     const rulesArray = propertyRules.map(r => ({ attribute: r.attribute }));
 
     let userCompatibility = 0;
-    let participantsCompatibility = 0;
 
     // 1. Calcular compatibilidade do usuário buscando com as regras
     if (userId) {
@@ -218,68 +228,13 @@ export async function calculatePropertyCompatibility(
         }
     }
 
-    // 2. Calcular compatibilidade dos participantes da república com as regras
-    const participants = await prisma.participation.findMany({
-        where: { id_property: propertyId },
-        select: { id_user: true }
-    });
-
-    if (participants.length > 0) {
-        const participantIds = participants.map(p => p.id_user);
-        
-        // Buscar todas as preferências dos participantes
-        const participantsPreferences = await prisma.preferences.findMany({
-            where: { id_user: { in: participantIds } },
-            include: { attribute: true }
-        });
-
-        // Agrupar preferências por usuário
-        const preferencesByUser = new Map<string, typeof participantsPreferences>();
-        for (const pref of participantsPreferences) {
-            if (!preferencesByUser.has(pref.id_user)) {
-                preferencesByUser.set(pref.id_user, []);
-            }
-            preferencesByUser.get(pref.id_user)!.push(pref);
-        }
-
-        // Calcular compatibilidade média dos participantes
-        let totalParticipantCompatibility = 0;
-        let participantCount = 0;
-
-        for (const [_, preferences] of preferencesByUser) {
-            const compatibility = calculateUserPropertyCompatibility(
-                preferences.map(p => ({
-                    attribute: p.attribute,
-                    weight: p.weight
-                })),
-                rulesArray
-            );
-            totalParticipantCompatibility += compatibility;
-            participantCount++;
-        }
-
-        if (participantCount > 0) {
-            participantsCompatibility = totalParticipantCompatibility / participantCount;
-        }
+    // Compatibilidade agora considera apenas o usuário buscando,
+    // espelhando exatamente o cálculo detalhado do frontend.
+    // Retorna como porcentagem (0-100).
+    if (!userId || userCompatibility <= 0) {
+        return 0;
     }
 
-    // Combinar os dois scores:
-    // - Se há usuário buscando e participantes, usa 70% do score do usuário + 30% do score dos participantes
-    // - Se há apenas usuário buscando (sem participantes), usa 100% do score do usuário
-    // - Se não há usuário, usa apenas o score dos participantes (ou 0 se não houver participantes)
-    // Retorna valor entre 0 e 100 (porcentagem)
-    let finalCompatibility = 0;
-    if (userId && userCompatibility > 0) {
-        if (participants.length > 0 && participantsCompatibility > 0) {
-            finalCompatibility = (userCompatibility * 0.7) + (participantsCompatibility * 0.3);
-        } else {
-            finalCompatibility = userCompatibility;
-        }
-    } else {
-        finalCompatibility = participantsCompatibility;
-    }
-    
-    // Retorna como porcentagem (0-100)
-    return Math.round(finalCompatibility * 100);
+    return Math.round(userCompatibility * 100);
 }
 
