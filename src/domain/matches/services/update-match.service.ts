@@ -5,6 +5,7 @@ import { NotFound } from "../../../utils/errors/not-found";
 import { NotDefined } from "../../../utils/errors/not-defined";
 import { getParticipantsByProperty } from "../../property/repositories/property.repository";
 import { getAnnouncementById } from "../../announcement/repositories/announcement.repository";
+import { createNotification } from "../../notification/services/create-notification.service";
 
 export async function updateMatchService(
     requestingUserId: string,
@@ -62,6 +63,23 @@ export async function updateMatchService(
 
         if (accepted !== undefined) {
             dataToUpdate.accepted = accepted;
+            
+            // Se o match foi aceito, criar notificação para o usuário que deu match
+            if (accepted === true) {
+                try {
+                    const announcement = await getAnnouncementById(propertyId, numberAnnouncement, prisma);
+                    await createNotification({
+                        id_user: matchUserId,
+                        type: 'match_accepted',
+                        title: '🎉 Seu match foi aceito!',
+                        message: `Parabéns! Seu match no anúncio "${announcement?.title || 'Anúncio'}" foi aceito. Entre em contato com o responsável pelo imóvel.`,
+                        link: `/anuncio/${propertyId}/${numberAnnouncement}`
+                    });
+                } catch (notifError) {
+                    // Falha ao criar notificação não deve impedir o match
+                    console.error("Erro ao criar notificação:", notifError);
+                }
+            }
         }
 
         return await updateMatch(matchUserId, propertyId, numberAnnouncement, dataToUpdate, prisma);

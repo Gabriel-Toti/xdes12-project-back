@@ -110,6 +110,7 @@ model users {
   matches             matches[]
   preferences         preferences[]
   participation       participation[]
+  notifications       notification[]
 }
 
 enum gender_t {
@@ -144,4 +145,26 @@ model announcement_image {
   announcement        announcement @relation(fields: [id_property, number_announcement], references: [id_property, number], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([id_property, number_announcement])
+}
+
+model notification {
+  id         String            @id @default(dbgenerated("gen_random_uuid()")) @db.VarChar(36)
+  id_user    String            @db.VarChar(36)
+  type       notification_type
+  title      String            @db.VarChar(128)
+  message    String            @db.VarChar(512)
+  link       String?           @db.VarChar(256)
+  read       Boolean           @default(false)
+  created_at DateTime          @default(now()) @db.Timestamptz(6)
+  users      users             @relation(fields: [id_user], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([id_user])
+  @@index([created_at])
+}
+
+enum notification_type {
+  match_accepted
+  new_announcement
+  reminder
+  system
 }

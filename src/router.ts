@@ -6,6 +6,7 @@ import rulesRouter from "./domain/attributes/routes/rules.routes"
 import announcementRouter from "./domain/announcement/routes/announcement.routes"
 import matchesRouter from "./domain/matches/routes/matches.routes"
 import paymentRouter from "./domain/payment/routes/payment.routes"
+import notificationRouter from "./domain/notification/routes/notification.routes"
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router.use(rulesRouter);
 router.use(announcementRouter);
 router.use(matchesRouter);
 router.use(paymentRouter);
+router.use(notificationRouter);
 
 export { router };
